@@ -78,16 +78,16 @@ runs:
 
     - name: Set GitHub Tag as Package Version
       run: |
-        sed -i -r 's/__version__ *= *".*"/__version__ = "${{ github.event.release.tag_name }}"/g' ${{ inputs.PACKAGE_DIRECTORY }}__init__.py
+        sed -i -r 's/__version__ = .*/__version__ = "${{ github.event.release.tag_name }}"/' ${{ inputs.PACKAGE_DIRECTORY }}__init__.py
         sed -i '0,/version =.*/s//version = "'"${{ github.event.release.tag_name }}"'"/' ./pyproject.toml
       shell: bash
 
     - name: Add and Commit Version
       run: |
         git add ${{ inputs.PACKAGE_DIRECTORY }}__init__.py ./pyproject.toml
-        git config --global user.name "PyPI Poetry Publish Bot"
-        git config --global user.email "admin@code-specialist.com"
-        git commit -m "Change version to ${{ github.event.release.tag_name }}" --allow-empty
+        git config --global user.name "Release Bot"
+        git config --global user.email "python-release-bot@lupin.pl"
+        git commit -m "chore: Update version to ${{ github.event.release.tag_name }}" --allow-empty
         git push origin HEAD:${{ inputs.BRANCH }}
       shell: bash
 
@@ -107,6 +107,6 @@ runs:
 
     - name: Build and Publish
       run: |
-        poetry config repositories.publish ${{ inputs.PUBLISH_REGISTRY }}    
+        poetry config repositories.publish ${{ inputs.PUBLISH_REGISTRY }}
         poetry publish -p ${{ inputs.PUBLISH_REGISTRY_PASSWORD }} -u ${{ inputs.PUBLISH_REGISTRY_USERNAME }} -r publish --build
       shell: bash
